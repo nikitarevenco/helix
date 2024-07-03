@@ -3232,17 +3232,6 @@ pub(super) fn command_mode(cx: &mut Context) {
             }
         }, // completion
         move |cx: &mut compositor::Context, input: &str, event: PromptEvent| {
-            let input: Cow<str> = if event == PromptEvent::Validate {
-                match cx.editor.expand_variables(input) {
-                    Ok(args) => args,
-                    Err(e) => {
-                        cx.editor.set_error(format!("{}", e));
-                        return;
-                    }
-                }
-            } else {
-                Cow::Borrowed(input)
-            };
             let parts = input.split_whitespace().collect::<Vec<&str>>();
             if parts.is_empty() {
                 return;
@@ -3259,8 +3248,18 @@ pub(super) fn command_mode(cx: &mut Context) {
             // Handle typable commands
             if let Some(cmd) = typed::TYPABLE_COMMAND_MAP.get(parts[0]) {
                 let shellwords = Shellwords::from(input.as_ref());
-                let args = shellwords.words();
-
+                let words = shellwords.words().to_vec();
+                let args = if event == PromptEvent::Validate {
+                    match cx.editor.expand_variables(&words) {
+                        Ok(args) => args,
+                        Err(e) => {
+                            cx.editor.set_error(format!("{}", e));
+                            return;
+                        }
+                    }
+                } else {
+                    words
+                };
                 if let Err(e) = (cmd.fun)(cx, &args[1..], event) {
                     cx.editor.set_error(format!("{}", e));
                 }

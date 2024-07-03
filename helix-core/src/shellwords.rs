@@ -45,88 +45,114 @@ impl<'a> From<&'a str> for Shellwords<'a> {
         let mut words = Vec::new();
         let mut parts = Vec::new();
         let mut escaped = String::with_capacity(input.len());
+        let mut inside_variable_expansion = false;
 
         let mut part_start = 0;
         let mut unescaped_start = 0;
         let mut end = 0;
 
         for (i, c) in input.char_indices() {
-            state = match state {
-                OnWhitespace => match c {
-                    '"' => {
-                        end = i;
-                        Dquoted
-                    }
-                    '\'' => {
-                        end = i;
-                        Quoted
-                    }
-                    '\\' => {
-                        if cfg!(unix) {
-                            escaped.push_str(&input[unescaped_start..i]);
-                            unescaped_start = i + 1;
-                            UnquotedEscaped
-                        } else {
-                            OnWhitespace
+            if !inside_variable_expansion {
+                if c == '%' {
+                    //%sh{this "should" be escaped}
+                    if let Some(t) = input.get(i + 1..i + 3) {
+                        if t == "sh" {
+                            inside_variable_expansion = true;
                         }
                     }
-                    c if c.is_ascii_whitespace() => {
-                        end = i;
-                        OnWhitespace
-                    }
-                    _ => Unquoted,
-                },
-                Unquoted => match c {
-                    '\\' => {
-                        if cfg!(unix) {
-                            escaped.push_str(&input[unescaped_start..i]);
-                            unescaped_start = i + 1;
-                            UnquotedEscaped
-                        } else {
-                            Unquoted
+                    //%{this "should" be escaped}
+                    if let Some(t) = input.get(i + 1..i + 2) {
+                        if t == "{" {
+                            inside_variable_expansion = true;
                         }
                     }
-                    c if c.is_ascii_whitespace() => {
-                        end = i;
-                        OnWhitespace
-                    }
-                    _ => Unquoted,
-                },
-                UnquotedEscaped => Unquoted,
-                Quoted => match c {
-                    '\\' => {
-                        if cfg!(unix) {
-                            escaped.push_str(&input[unescaped_start..i]);
-                            unescaped_start = i + 1;
-                            QuoteEscaped
-                        } else {
-                            Quoted
-                        }
-                    }
-                    '\'' => {
-                        end = i;
-                        OnWhitespace
-                    }
-                    _ => Quoted,
-                },
-                QuoteEscaped => Quoted,
-                Dquoted => match c {
-                    '\\' => {
-                        if cfg!(unix) {
-                            escaped.push_str(&input[unescaped_start..i]);
-                            unescaped_start = i + 1;
-                            DquoteEscaped
-                        } else {
+                }
+            } else {
+                if c == '}' {
+                    inside_variable_expansion = false;
+                }
+            }
+
+            state = if !inside_variable_expansion {
+                match state {
+                    OnWhitespace => match c {
+                        '"' => {
+                            end = i;
                             Dquoted
                         }
-                    }
-                    '"' => {
-                        end = i;
-                        OnWhitespace
-                    }
-                    _ => Dquoted,
-                },
-                DquoteEscaped => Dquoted,
+                        '\'' => {
+                            end = i;
+                            Quoted
+                        }
+                        '\\' => {
+                            if cfg!(unix) {
+                                escaped.push_str(&input[unescaped_start..i]);
+                                unescaped_start = i + 1;
+                                UnquotedEscaped
+                            } else {
+                                OnWhitespace
+                            }
+                        }
+                        c if c.is_ascii_whitespace() => {
+                            end = i;
+                            Unquoted
+                        }
+                        _ => Unquoted,
+                    },
+                    Unquoted => match c {
+                        '\\' => {
+                            if cfg!(unix) {
+                                escaped.push_str(&input[unescaped_start..i]);
+                                unescaped_start = i + 1;
+                                UnquotedEscaped
+                            } else {
+                                Unquoted
+                            }
+                        }
+                        c if c.is_ascii_whitespace() => {
+                            end = i;
+                            OnWhitespace
+                        }
+                        _ => Unquoted,
+                    },
+                    UnquotedEscaped => Unquoted,
+                    Quoted => match c {
+                        '\\' => {
+                            if cfg!(unix) {
+                                escaped.push_str(&input[unescaped_start..i]);
+                                unescaped_start = i + 1;
+                                QuoteEscaped
+                            } else {
+                                Quoted
+                            }
+                        }
+                        '\'' => {
+                            end = i;
+                            OnWhitespace
+                        }
+                        _ => Quoted,
+                    },
+                    QuoteEscaped => Quoted,
+                    Dquoted => match c {
+                        '\\' => {
+                            if cfg!(unix) {
+                                escaped.push_str(&input[unescaped_start..i]);
+                                unescaped_start = i + 1;
+                                DquoteEscaped
+                            } else {
+                                Dquoted
+                            }
+                        }
+                        '"' => {
+                            end = i;
+                            OnWhitespace
+                        }
+                        _ => Dquoted,
+                    },
+                    DquoteEscaped => Dquoted,
+                }
+            } else {
+                state
             };
 
             let c_len = c.len_utf8();

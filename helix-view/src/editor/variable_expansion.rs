@@ -2,7 +2,20 @@ use crate::Editor;
 use std::borrow::Cow;
 
 impl Editor {
-    pub fn expand_variables<'a>(&self, input: &'a str) -> anyhow::Result<Cow<'a, str>> {
+    pub fn expand_variables<'a>(
+        &self,
+        args: &'a Vec<Cow<'a, str>>,
+    ) -> anyhow::Result<Vec<Cow<'a, str>>> {
+        let mut output = Vec::with_capacity(args.len());
+        for arg in args {
+            if let Ok(s) = self.expand_arg(arg) {
+                output.push(s);
+            }
+        }
+
+        Ok(output)
+    }
+    fn expand_arg<'a>(&self, input: &'a str) -> anyhow::Result<Cow<'a, str>> {
         let (view, doc) = current_ref!(self);
         let shell = &self.config().shell;
 
@@ -81,8 +94,7 @@ impl Editor {
                                         }
 
                                         if let Some(o) = output.as_mut() {
-                                            let body =
-                                                self.expand_variables(&input[index + 4..end])?;
+                                            let body = self.expand_arg(&input[index + 4..end])?;
 
                                             let output = tokio::task::block_in_place(move || {
                                                 helix_lsp::block_on(async move {

@@ -250,11 +250,8 @@ impl MappableCommand {
                         scroll: None,
                     };
 
-                    let args = args.join(" ");
                     match cx.editor.expand_variables(&args) {
                         Ok(args) => {
-                            let args = args.split_whitespace();
-                            let args: Vec<Cow<str>> = args.map(Cow::Borrowed).collect();
                             if let Err(e) = (command.fun)(&mut cx, &args[..], PromptEvent::Validate)
                             {
                                 cx.editor.set_error(format!("{}", e));
