@@ -3247,7 +3247,7 @@ pub(super) fn command_mode(cx: &mut Context) {
 
             // Handle typable commands
             if let Some(cmd) = typed::TYPABLE_COMMAND_MAP.get(parts[0]) {
-                let shellwords = Shellwords::from(input.as_ref());
+                let shellwords = Shellwords::from(input);
                 let words = shellwords.words().to_vec();
                 let args = if event == PromptEvent::Validate {
                     match cx.editor.expand_variables(&words) {

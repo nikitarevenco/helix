@@ -67,10 +67,8 @@ impl<'a> From<&'a str> for Shellwords<'a> {
                         }
                     }
                 }
-            } else {
-                if c == '}' {
-                    inside_variable_expansion = false;
-                }
+            } else if c == '}' {
+                inside_variable_expansion = false;
             }
 
             state = if !inside_variable_expansion {
@@ -95,7 +93,7 @@ impl<'a> From<&'a str> for Shellwords<'a> {
                         }
                         c if c.is_ascii_whitespace() => {
                             end = i;
-                            Unquoted
+                            OnWhitespace
                         }
                         _ => Unquoted,
                     },
