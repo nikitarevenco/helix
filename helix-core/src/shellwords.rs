@@ -46,7 +46,7 @@ impl<'a> From<&'a str> for Shellwords<'a> {
         let mut parts = Vec::new();
         let mut escaped = String::with_capacity(input.len());
         let mut inside_variable_expansion = false;
-
+        let mut nested_variable_expansion_count = 0;
         let mut part_start = 0;
         let mut unescaped_start = 0;
         let mut end = 0;
@@ -57,18 +57,25 @@ impl<'a> From<&'a str> for Shellwords<'a> {
                     //%sh{this "should" be escaped}
                     if let Some(t) = input.get(i + 1..i + 3) {
                         if t == "sh" {
+                            nested_variable_expansion_count += 1;
                             inside_variable_expansion = true;
                         }
                     }
                     //%{this "should" be escaped}
                     if let Some(t) = input.get(i + 1..i + 2) {
                         if t == "{" {
+                            nested_variable_expansion_count += 1;
                             inside_variable_expansion = true;
                         }
                     }
                 }
             } else if c == '}' {
-                inside_variable_expansion = false;
+                nested_variable_expansion_count -= 1;
+                if nested_variable_expansion_count == 0 {
+                    inside_variable_expansion = false;
+                }
+            } else if c == '{' {
+                nested_variable_expansion_count += 1;
             }
 
             state = if !inside_variable_expansion {

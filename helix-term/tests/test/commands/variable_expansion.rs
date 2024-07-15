@@ -17,6 +17,7 @@ async fn test_variable_expansion() -> anyhow::Result<()> {
             false,
         )
         .await?;
+        let mut app = AppBuilder::new().build()?;
 
         let mut app = AppBuilder::new().build()?;
 
