@@ -67,6 +67,22 @@ impl Editor {
                                             .cursor_line(doc.text().slice(..))
                                             + 1)
                                         .to_string(),
+                                        "cursorcolumn" => (doc
+                                            .selection(view.id)
+                                            .primary()
+                                            .cursor(doc.text().slice(..))
+                                            + 1)
+                                        .to_string(),
+                                        "lang" => doc.language_name().unwrap_or("text").to_string(),
+                                        "ext" => match doc.relative_path() {
+                                            Some(path) => path
+                                                .to_string_lossy()
+                                                .split(".")
+                                                .last()
+                                                .unwrap_or("")
+                                                .to_string(),
+                                            _ => "".to_string(),
+                                        },
                                         "selection" => doc
                                             .selection(view.id)
                                             .primary()
