@@ -242,22 +242,25 @@ impl MappableCommand {
     pub fn execute(&self, cx: &mut Context) {
         match &self {
             Self::Typable { name, args, doc: _ } => {
-                let args: Vec<Cow<str>> = args.iter().map(Cow::from).collect();
-                if let Some(command) = typed::TYPABLE_COMMAND_MAP.get(name.as_str()) {
-                    let mut cx = compositor::Context {
-                        editor: cx.editor,
-                        jobs: cx.jobs,
-                        scroll: None,
-                    };
+                let mut args: Vec<Cow<str>> = args.iter().map(Cow::from).collect();
+                let joined_args = vec![Cow::from(args.join(" "))];
+                if let Ok(expanded_args) = cx.editor.expand_variables(&joined_args) {
+                    args = expanded_args
+                        .first()
+                        .unwrap()
+                        .split(' ')
+                        .map(Cow::from)
+                        .collect();
+                    if let Some(command) = typed::TYPABLE_COMMAND_MAP.get(name.as_str()) {
+                        let mut cx = compositor::Context {
+                            editor: cx.editor,
+                            jobs: cx.jobs,
+                            scroll: None,
+                        };
 
-                    match cx.editor.expand_variables(&args) {
-                        Ok(args) => {
-                            if let Err(e) = (command.fun)(&mut cx, &args[..], PromptEvent::Validate)
-                            {
-                                cx.editor.set_error(format!("{}", e));
-                            }
+                        if let Err(e) = (command.fun)(&mut cx, &args[..], PromptEvent::Validate) {
+                            cx.editor.set_error(format!("{}", e));
                         }
-                        Err(err) => cx.editor.set_error(err.to_string()),
                     }
                 }
             }

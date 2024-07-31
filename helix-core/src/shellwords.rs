@@ -40,7 +40,6 @@ pub struct Shellwords<'a> {
 impl<'a> From<&'a str> for Shellwords<'a> {
     fn from(input: &'a str) -> Self {
         use State::*;
-
         let mut state = Unquoted;
         let mut words = Vec::new();
         let mut parts = Vec::new();
@@ -52,30 +51,27 @@ impl<'a> From<&'a str> for Shellwords<'a> {
         let mut end = 0;
 
         for (i, c) in input.char_indices() {
-            if !inside_variable_expansion {
-                if c == '%' {
-                    //%sh{this "should" be escaped}
-                    if let Some(t) = input.get(i + 1..i + 3) {
-                        if t == "sh" {
-                            nested_variable_expansion_count += 1;
-                            inside_variable_expansion = true;
-                        }
-                    }
-                    //%{this "should" be escaped}
-                    if let Some(t) = input.get(i + 1..i + 2) {
-                        if t == "{" {
-                            nested_variable_expansion_count += 1;
-                            inside_variable_expansion = true;
-                        }
+            if c == '%' {
+                //%sh{this "should" be escaped}
+                if let Some(t) = input.get(i + 1..i + 3) {
+                    if t == "sh" {
+                        nested_variable_expansion_count += 1;
+                        inside_variable_expansion = true;
                     }
                 }
-            } else if c == '}' {
+                //%{this "should" be escaped}
+                if let Some(t) = input.get(i + 1..i + 2) {
+                    if t == "{" {
+                        nested_variable_expansion_count += 1;
+                        inside_variable_expansion = true;
+                    }
+                }
+            }
+            if c == '}' {
                 nested_variable_expansion_count -= 1;
                 if nested_variable_expansion_count == 0 {
                     inside_variable_expansion = false;
                 }
-            } else if c == '{' {
-                nested_variable_expansion_count += 1;
             }
 
             state = if !inside_variable_expansion {
@@ -264,6 +260,38 @@ mod test {
             Cow::from(r#"three "with escaping\"#),
         ];
         // TODO test is_owned and is_borrowed, once they get stabilized.
+        assert_eq!(expected, result);
+    }
+    #[test]
+    fn test_expansion() {
+        let input = r#"echo %{filename} %{linenumber}"#;
+        let shellwords = Shellwords::from(input);
+        let result = shellwords.words().to_vec();
+        let expected = vec![
+            Cow::from("echo"),
+            Cow::from("%{filename}"),
+            Cow::from("%{linenumber}"),
+        ];
+        assert_eq!(expected, result);
+
+        let input = r#"echo %{filename} 'world' %{something to 'escape}"#;
+        let shellwords = Shellwords::from(input);
+        let result = shellwords.words().to_vec();
+        let expected = vec![
+            Cow::from("echo"),
+            Cow::from("%{filename}"),
+            Cow::from("world"),
+            Cow::from("%{something to 'escape}"),
+        ];
+        assert_eq!(expected, result);
+        let input = r#"echo %sh{%sh{%{filename}}} cool"#;
+        let shellwords = Shellwords::from(input);
+        let result = shellwords.words().to_vec();
+        let expected = vec![
+            Cow::from("echo"),
+            Cow::from("%sh{%sh{%{filename}}}"),
+            Cow::from("cool"),
+        ];
         assert_eq!(expected, result);
     }
 
