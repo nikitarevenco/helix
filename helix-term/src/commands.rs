@@ -242,25 +242,30 @@ impl MappableCommand {
     pub fn execute(&self, cx: &mut Context) {
         match &self {
             Self::Typable { name, args, doc: _ } => {
-                let mut args: Vec<Cow<str>> = args.iter().map(Cow::from).collect();
-                let joined_args = vec![Cow::from(args.join(" "))];
-                if let Ok(expanded_args) = cx.editor.expand_variables(&joined_args) {
-                    args = expanded_args
-                        .first()
-                        .unwrap()
-                        .split(' ')
-                        .map(Cow::from)
-                        .collect();
-                    if let Some(command) = typed::TYPABLE_COMMAND_MAP.get(name.as_str()) {
-                        let mut cx = compositor::Context {
-                            editor: cx.editor,
-                            jobs: cx.jobs,
-                            scroll: None,
-                        };
-
-                        if let Err(e) = (command.fun)(&mut cx, &args[..], PromptEvent::Validate) {
-                            cx.editor.set_error(format!("{}", e));
+                let args: Vec<Cow<str>> = args.iter().map(Cow::from).collect();
+                let mut joined_args = args.join(" ");
+                let expanded_args = match args.len() {
+                    0 => vec![],
+                    _ => {
+                        if let Ok(expanded) = cx.editor.expand_variable_in_string(&joined_args) {
+                            joined_args = expanded.to_string();
+                            joined_args.split(' ').map(Cow::from).collect()
+                        } else {
+                            args
                         }
+                    }
+                };
+                if let Some(command) = typed::TYPABLE_COMMAND_MAP.get(name.as_str()) {
+                    let mut cx = compositor::Context {
+                        editor: cx.editor,
+                        jobs: cx.jobs,
+                        scroll: None,
+                    };
+
+                    if let Err(e) =
+                        (command.fun)(&mut cx, &expanded_args[..], PromptEvent::Validate)
+                    {
+                        cx.editor.set_error(format!("{}", e));
                     }
                 }
             }
