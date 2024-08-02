@@ -74,15 +74,12 @@ impl Editor {
                                             + 1)
                                         .to_string(),
                                         "lang" => doc.language_name().unwrap_or("text").to_string(),
-                                        "ext" => match doc.relative_path() {
-                                            Some(path) => path
-                                                .to_string_lossy()
-                                                .split(".")
-                                                .last()
-                                                .unwrap_or("")
-                                                .to_string(),
-                                            _ => "".to_string(),
-                                        },
+                                        "ext" => doc
+                                            .relative_path()
+                                            .and_then(|p| {
+                                                p.extension()?.to_os_string().into_string().ok()
+                                            })
+                                            .unwrap_or_default(),
                                         "selection" => doc
                                             .selection(view.id)
                                             .primary()
