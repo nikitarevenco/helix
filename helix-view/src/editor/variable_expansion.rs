@@ -78,6 +78,11 @@ impl Editor {
                                             .and_then(std::path::Path::to_str)
                                             .unwrap_or(crate::document::SCRATCH_BUFFER_NAME)
                                             .to_owned(),
+                                        "git_repo" => helix_loader::find_workspace()
+                                            .0
+                                            .to_str()
+                                            .unwrap_or("")
+                                            .to_owned(),
                                         "cwd" => helix_stdx::env::current_working_dir()
                                             .to_str()
                                             .unwrap()
