@@ -1,3 +1,5 @@
+use helix_core::coords_at_pos;
+
 use crate::Editor;
 use std::borrow::Cow;
 
@@ -93,12 +95,14 @@ impl Editor {
                                             .cursor_line(doc.text().slice(..))
                                             + 1)
                                         .to_string(),
-                                        "cursorcolumn" => (doc
-                                            .selection(view.id)
-                                            .primary()
-                                            .cursor(doc.text().slice(..))
-                                            + 1)
-                                        .to_string(),
+                                        "cursorcolumn" => (coords_at_pos(
+                                            doc.text().slice(..),
+                                            doc.selection(view.id)
+                                                .primary()
+                                                .cursor(doc.text().slice(..)),
+                                        )
+                                        .col + 1)
+                                            .to_string(),
                                         "lang" => doc.language_name().unwrap_or("text").to_string(),
                                         "ext" => doc
                                             .relative_path()
