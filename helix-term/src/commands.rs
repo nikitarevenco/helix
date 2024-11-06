@@ -336,6 +336,8 @@ impl MappableCommand {
         page_down, "Move page down",
         half_page_up, "Move half page up",
         half_page_down, "Move half page down",
+        quarter_page_up, "Move quarter page up",
+        quarter_page_down, "Move quarter page down",
         page_cursor_up, "Move page and cursor up",
         page_cursor_down, "Move page and cursor down",
         page_cursor_half_up, "Move page and cursor half up",
@@ -1873,6 +1875,18 @@ fn half_page_up(cx: &mut Context) {
 fn half_page_down(cx: &mut Context) {
     let view = view!(cx.editor);
     let offset = view.inner_height() / 2;
+    scroll(cx, offset, Direction::Forward, false);
+}
+
+fn quarter_page_up(cx: &mut Context) {
+    let view = view!(cx.editor);
+    let offset = view.inner_height() / 4;
+    scroll(cx, offset, Direction::Backward, false);
+}
+
+fn quarter_page_down(cx: &mut Context) {
+    let view = view!(cx.editor);
+    let offset = view.inner_height() / 4;
     scroll(cx, offset, Direction::Forward, false);
 }
 
