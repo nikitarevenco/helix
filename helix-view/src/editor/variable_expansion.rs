@@ -41,14 +41,14 @@ impl Editor {
                                     last_push_end = end + 1;
 
                                     let value = match &input[index + 2..end] {
-                                        "basename" => doc
+                                        "basename" | "b" => doc
                                             .path()
                                             .and_then(|it| {
                                                 it.file_name().and_then(|it| it.to_str())
                                             })
                                             .unwrap_or(crate::document::SCRATCH_BUFFER_NAME)
                                             .to_owned(),
-                                        "filename" => doc
+                                        "filename" | "f" => doc
                                             .path()
                                             .and_then(|it| it.to_str())
                                             .unwrap_or(crate::document::SCRATCH_BUFFER_NAME)
@@ -74,7 +74,7 @@ impl Editor {
                                                 .unwrap_or(crate::document::SCRATCH_BUFFER_NAME)
                                                 .to_owned()
                                         }
-                                        "dirname" => doc
+                                        "dirname" | "d" => doc
                                             .path()
                                             .and_then(|p| p.parent())
                                             .and_then(std::path::Path::to_str)
