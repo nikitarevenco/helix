@@ -53,8 +53,8 @@ impl Editor {
                                             .and_then(|it| it.to_str())
                                             .unwrap_or(crate::document::SCRATCH_BUFFER_NAME)
                                             .to_owned(),
-                                        "filename:git_rel" => {
-                                            // This will get git repo root or cwd if not inside a git repo.
+                                        "filename:repo_rel" => {
+                                            // This will get repo root or cwd if not inside a git repo.
                                             let workspace_path = helix_loader::find_workspace().0;
                                             doc.path()
                                                 .and_then(|p| {
@@ -80,7 +80,7 @@ impl Editor {
                                             .and_then(std::path::Path::to_str)
                                             .unwrap_or(crate::document::SCRATCH_BUFFER_NAME)
                                             .to_owned(),
-                                        "git_repo" => helix_loader::find_workspace()
+                                        "repo" => helix_loader::find_workspace()
                                             .0
                                             .to_str()
                                             .unwrap_or("")
