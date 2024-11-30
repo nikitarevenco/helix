@@ -3250,7 +3250,7 @@ pub(super) fn command_mode(cx: &mut Context) {
                 let shellwords = Shellwords::from(input);
                 let words = shellwords.words().to_vec();
                 let args = if event == PromptEvent::Validate {
-                    match cx.editor.expand_variables_in_vec(&words) {
+                    match cx.editor.expand_variables_in_vec(&words, true) {
                         Ok(args) => args,
                         Err(e) => {
                             cx.editor.set_error(format!("{}", e));

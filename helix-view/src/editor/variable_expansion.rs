@@ -7,17 +7,22 @@ impl Editor {
     pub fn expand_variables_in_vec<'a>(
         &self,
         args: &'a Vec<Cow<'a, str>>,
+        expand_sh: bool,
     ) -> anyhow::Result<Vec<Cow<'a, str>>> {
         let mut output = Vec::with_capacity(args.len());
         for arg in args {
-            if let Ok(s) = self.expand_variable_in_string(arg) {
+            if let Ok(s) = self.expand_variable_in_string(arg, expand_sh) {
                 output.push(s);
             }
         }
 
         Ok(output)
     }
-    pub fn expand_variable_in_string<'a>(&self, input: &'a str) -> anyhow::Result<Cow<'a, str>> {
+    pub fn expand_variable_in_string<'a>(
+        &self,
+        input: &'a str,
+        expand_sh: bool,
+    ) -> anyhow::Result<Cow<'a, str>> {
         let (view, doc) = current_ref!(self);
         let shell = &self.config().shell;
 
@@ -124,7 +129,7 @@ impl Editor {
                                 }
                             }
                         }
-                    } else if char == 's' {
+                    } else if char == 's' && expand_sh {
                         if let (Some((_, 'h')), Some((_, '{'))) = (chars.next(), chars.next()) {
                             let mut right_bracket_remaining = 1;
                             for (end, char) in chars.by_ref() {
@@ -139,6 +144,7 @@ impl Editor {
                                         if let Some(o) = output.as_mut() {
                                             let body = self.expand_variable_in_string(
                                                 &input[index + 4..end],
+                                                expand_sh,
                                             )?;
 
                                             let output = tokio::task::block_in_place(move || {

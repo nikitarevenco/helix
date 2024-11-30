@@ -247,7 +247,9 @@ impl MappableCommand {
                 let expanded_args = match args.len() {
                     0 => vec![],
                     _ => {
-                        if let Ok(expanded) = cx.editor.expand_variable_in_string(&joined_args) {
+                        if let Ok(expanded) =
+                            cx.editor.expand_variable_in_string(&joined_args, true)
+                        {
                             joined_args = expanded.to_string();
                             joined_args.split(' ').map(Cow::from).collect()
                         } else {
