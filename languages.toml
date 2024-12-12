@@ -3135,6 +3135,10 @@ indent = { tab-width = 2, unit = "  " }
 comment-token = "--"
 language-servers = [ "haskell-language-server" ]
 
+[[grammar]]
+name = "cabal"
+source = { git = "https://gitlab.com/magus/tree-sitter-cabal", rev = "d1105d9ed6156e4329e0dd92fddf1ea0adc933c6" }
+
 [[language]]
 name = "hurl"
 scope = "source.hurl"
