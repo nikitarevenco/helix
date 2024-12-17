@@ -1470,6 +1470,8 @@ See the documentation page on <a href="./pickers.html">pickers</a> for more info
 <tr><td><code>command_palette</code></td><td>Open command palette</td><td>normal: <code>&lt;space&gt;?</code>, select: <code>&lt;space&gt;?</code></td></tr>
 <tr><td><code>goto_word</code></td><td>Jump to a two-character label</td><td>normal: <code>gw</code></td></tr>
 <tr><td><code>extend_to_word</code></td><td>Extend to a two-character label</td><td>select: <code>gw</code></td></tr>
+<tr><td><code>goto_next_tabstop</code></td><td>goto next snippet placeholder</td><td></td></tr>
+<tr><td><code>goto_prev_tabstop</code></td><td>goto next snippet placeholder</td><td></td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h2 id="language-support"><a class="header" href="#language-support">Language Support</a></h2>
 <p>The following languages and Language Servers are supported. To use
@@ -1798,6 +1800,7 @@ Its settings will be merged with the configuration directory <code>config.toml</
 <tr><td><code>line-number</code></td><td>Line number display: <code>absolute</code> simply shows each line's number, while <code>relative</code> shows the distance from the current line. When unfocused or in insert mode, <code>relative</code> will still show absolute line numbers</td><td><code>absolute</code></td></tr>
 <tr><td><code>cursorline</code></td><td>Highlight all lines with a cursor</td><td><code>false</code></td></tr>
 <tr><td><code>cursorcolumn</code></td><td>Highlight all columns with a cursor</td><td><code>false</code></td></tr>
+<tr><td><code>continue-comments</code></td><td>if helix should automatically add a line comment token if you create a new line inside a comment.</td><td><code>true</code></td></tr>
 <tr><td><code>gutters</code></td><td>Gutters to display: Available are <code>diagnostics</code> and <code>diff</code> and <code>line-numbers</code> and <code>spacer</code>, note that <code>diagnostics</code> also includes other features like breakpoints, 1-width padding will be inserted if gutters is non-empty</td><td><code>["diagnostics", "spacer", "line-numbers", "spacer", "diff"]</code></td></tr>
 <tr><td><code>auto-completion</code></td><td>Enable automatic pop up of auto-completion</td><td><code>true</code></td></tr>
 <tr><td><code>path-completion</code></td><td>Enable filepath completion. Show files and directories if an existing path at the cursor was recognized, either absolute or relative to the current opened document or current working directory (if the buffer is not yet saved). Defaults to true.</td><td><code>true</code></td></tr>
@@ -1825,7 +1828,7 @@ Its settings will be merged with the configuration directory <code>config.toml</
 </tbody></table>
 </div>
 <h3 id="editorclipboard-provider-section"><a class="header" href="#editorclipboard-provider-section"><code>[editor.clipboard-provider]</code> Section</a></h3>
-<p>Helix can be configured wither to use a builtin clipboard configuration or to use
+<p>Helix can be configured either to use a builtin clipboard configuration or to use
 a provided command.</p>
 <p>For instance, setting it to use OSC 52 termcodes, the configuration would be:</p>
 <pre><code class="language-toml">[editor]
@@ -2624,7 +2627,6 @@ Cmd-s = ":write" # Cmd or Win or Meta and 's' to write
 <tr><td>Backspace</td><td><code>"backspace"</code></td></tr>
 <tr><td>Space</td><td><code>"space"</code></td></tr>
 <tr><td>Return/Enter</td><td><code>"ret"</code></td></tr>
-<tr><td>-</td><td><code>"minus"</code></td></tr>
 <tr><td>Left</td><td><code>"left"</code></td></tr>
 <tr><td>Right</td><td><code>"right"</code></td></tr>
 <tr><td>Up</td><td><code>"up"</code></td></tr>
@@ -2641,6 +2643,13 @@ Cmd-s = ":write" # Cmd or Win or Meta and 's' to write
 </tbody></table>
 </div>
 <p>Keys can be disabled by binding them to the <code>no_op</code> command.</p>
+<p>All other keys such as <code>?</code>, <code>!</code>, <code>-</code> etc. can be used literally:</p>
+<pre><code class="language-toml">[keys.normal]
+"?" = ":write"
+"!" = ":write"
+"-" = ":write"
+</code></pre>
+<p>Note: <code>-</code> can't be used when combined with a modifier, for example <code>Alt</code> + <code>-</code> should be written as <code>A-minus</code>. <code>A--</code> is not accepted.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="languages"><a class="header" href="#languages">Languages</a></h2>
 <p>Language-specific settings and settings for language servers are configured
 in <code>languages.toml</code> files.</p>
