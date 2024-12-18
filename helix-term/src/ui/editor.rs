@@ -24,7 +24,6 @@ use helix_core::{
 };
 use helix_view::{
     annotations::diagnostics::DiagnosticFilter,
-    apply_transaction,
     document::{Mode, SavePoint, SCRATCH_BUFFER_NAME},
     editor::{CompleteAction, CursorShapeConfig, StatusLineRenderConfig},
     graphics::{Color, CursorKind, Modifier, Rect, Style},
