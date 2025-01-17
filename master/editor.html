@@ -163,11 +163,13 @@
                         <h2 id="editor"><a class="header" href="#editor">Editor</a></h2>
 <ul>
 <li><a href="#editor-section"><code>[editor]</code> Section</a></li>
+<li><a href="#editorclipboard-provider-section"><code>[editor.clipboard-provider]</code> Section</a></li>
 <li><a href="#editorstatusline-section"><code>[editor.statusline]</code> Section</a></li>
 <li><a href="#editorlsp-section"><code>[editor.lsp]</code> Section</a></li>
 <li><a href="#editorcursor-shape-section"><code>[editor.cursor-shape]</code> Section</a></li>
 <li><a href="#editorfile-picker-section"><code>[editor.file-picker]</code> Section</a></li>
 <li><a href="#editorauto-pairs-section"><code>[editor.auto-pairs]</code> Section</a></li>
+<li><a href="#editorauto-save-section"><code>[editor.auto-save]</code> Section</a></li>
 <li><a href="#editorsearch-section"><code>[editor.search]</code> Section</a></li>
 <li><a href="#editorwhitespace-section"><code>[editor.whitespace]</code> Section</a></li>
 <li><a href="#editorindent-guides-section"><code>[editor.indent-guides]</code> Section</a></li>
@@ -289,7 +291,8 @@ mode.select = "SELECT"
 <h3 id="editorlsp-section"><a class="header" href="#editorlsp-section"><code>[editor.lsp]</code> Section</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Default</th></tr></thead><tbody>
 <tr><td><code>enable</code></td><td>Enables LSP integration. Setting to false will completely disable language servers regardless of language settings.</td><td><code>true</code></td></tr>
-<tr><td><code>display-messages</code></td><td>Display LSP progress messages below statusline<sup class="footnote-reference"><a href="#1">1</a></sup></td><td><code>false</code></td></tr>
+<tr><td><code>display-messages</code></td><td>Display LSP <code>window/showMessage</code> messages below statusline<sup class="footnote-reference"><a href="#1">1</a></sup></td><td><code>true</code></td></tr>
+<tr><td><code>display-progress-messages</code></td><td>Display LSP progress messages below statusline<sup class="footnote-reference"><a href="#1">1</a></sup></td><td><code>false</code></td></tr>
 <tr><td><code>auto-signature-help</code></td><td>Enable automatic popup of signature help (parameter hints)</td><td><code>true</code></td></tr>
 <tr><td><code>display-inlay-hints</code></td><td>Display inlay hints<sup class="footnote-reference"><a href="#2">2</a></sup></td><td><code>false</code></td></tr>
 <tr><td><code>display-signature-help-docs</code></td><td>Display docs under signature help popup</td><td><code>true</code></td></tr>
