@@ -21,7 +21,9 @@ use helix_view::{
 
 type PromptCharHandler = Box<dyn Fn(&mut Prompt, char, &Context)>;
 
-pub type Completion = (RangeFrom<usize>, Span<'static>);
+/// Second span is purely for display. It can act as a decoration or extra inline documentation, such as
+/// when completing registers we might want to document `%` as <document path> in the completion
+pub type Completion = (RangeFrom<usize>, Span<'static>, Option<Span<'static>>);
 type CompletionFn = Box<dyn FnMut(&Editor, &str) -> Vec<Completion>>;
 type CallbackFn = Box<dyn FnMut(&mut Context, &str, PromptEvent)>;
 pub type DocFn = Box<dyn Fn(&str) -> Option<Cow<str>>>;
@@ -374,7 +376,7 @@ impl Prompt {
 
         self.selection = Some(index);
 
-        let (range, item) = &self.completion[index];
+        let (range, item, _decoration) = &self.completion[index];
 
         self.line.replace_range(range.clone(), &item.content);
 
@@ -401,7 +403,13 @@ impl Prompt {
         let max_len = self
             .completion
             .iter()
-            .map(|(_, completion)| completion.content.len() as u16)
+            .map(|(_, completion, decoration)| {
+                completion.content.len() as u16
+                    + decoration
+                        .as_ref()
+                        .map(|decoration| decoration.content.len())
+                        .unwrap_or_default() as u16
+            })
             .max()
             .unwrap_or(BASE_WIDTH)
             .max(BASE_WIDTH);
@@ -437,7 +445,7 @@ impl Prompt {
             let mut row = 0;
             let mut col = 0;
 
-            for (i, (_range, completion)) in
+            for (i, (_range, completion, decoration)) in
                 self.completion.iter().enumerate().skip(offset).take(items)
             {
                 let is_selected = Some(i) == self.selection;
@@ -448,10 +456,15 @@ impl Prompt {
                     completion_color.patch(completion.style)
                 };
 
+                let content = decoration
+                    .as_ref()
+                    .map(|decoration| format!("{} {}", completion.content, decoration.content))
+                    .unwrap_or(completion.content.to_string());
+
                 surface.set_stringn(
                     area.x + col * (1 + col_width),
                     area.y + row,
-                    &completion.content,
+                    content,
                     col_width.saturating_sub(1) as usize,
                     completion_item_style,
                 );
@@ -652,7 +665,9 @@ impl Component for Prompt {
                     .editor
                     .registers
                     .iter_preview()
-                    .map(|(ch, preview)| (0.., format!("{} {}", ch, &preview).into()))
+                    .map(|(ch, preview)| {
+                        (0.., ch.to_string().into(), Some(preview.to_string().into()))
+                    })
                     .collect();
                 self.next_char_handler = Some(Box::new(|prompt, c, context| {
                     prompt.insert_str(
