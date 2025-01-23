@@ -364,9 +364,8 @@ your <code>~/.bashrc</code> or equivalent:</p>
 <pre><code class="language-sh">export HELIX_RUNTIME=~/src/helix/runtime
 </code></pre>
 <p>Or, create a symbolic link:</p>
-<pre><code class="language-sh">ln -Ts $PWD/runtime ~/.config/helix/runtime
+<pre><code class="language-sh">ln -Tsf $PWD/runtime ~/.config/helix/runtime
 </code></pre>
-<p>If the above command fails to create a symbolic link because the file exists either move <code>~/.config/helix/runtime</code> to a new location or delete it, then run the symlink command above again.</p>
 <h4 id="windows-1"><a class="header" href="#windows-1">Windows</a></h4>
 <p>Either set the <code>HELIX_RUNTIME</code> environment variable to point to the runtime files using the Windows setting (search for
 <code>Edit environment variables for your account</code>) or use the <code>setx</code> command in
@@ -1313,6 +1312,9 @@ See the documentation page on <a href="./pickers.html">pickers</a> for more info
 <tr><td><code>file_picker</code></td><td>Open file picker</td><td>normal: <code>&lt;space&gt;f</code>, select: <code>&lt;space&gt;f</code></td></tr>
 <tr><td><code>file_picker_in_current_buffer_directory</code></td><td>Open file picker at current buffer's directory</td><td></td></tr>
 <tr><td><code>file_picker_in_current_directory</code></td><td>Open file picker at current working directory</td><td>normal: <code>&lt;space&gt;F</code>, select: <code>&lt;space&gt;F</code></td></tr>
+<tr><td><code>file_browser</code></td><td>Open file browser in workspace root</td><td>normal: <code>&lt;space&gt;e</code>, select: <code>&lt;space&gt;e</code></td></tr>
+<tr><td><code>file_browser_in_current_buffer_directory</code></td><td>Open file browser at current buffer's directory</td><td>normal: <code>&lt;space&gt;E</code>, select: <code>&lt;space&gt;E</code></td></tr>
+<tr><td><code>file_browser_in_current_directory</code></td><td>Open file browser at current working directory</td><td></td></tr>
 <tr><td><code>code_action</code></td><td>Perform code action</td><td>normal: <code>&lt;space&gt;a</code>, select: <code>&lt;space&gt;a</code></td></tr>
 <tr><td><code>buffer_picker</code></td><td>Open buffer picker</td><td>normal: <code>&lt;space&gt;b</code>, select: <code>&lt;space&gt;b</code></td></tr>
 <tr><td><code>jumplist_picker</code></td><td>Open jumplist picker</td><td>normal: <code>&lt;space&gt;j</code>, select: <code>&lt;space&gt;j</code></td></tr>
@@ -1524,7 +1526,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>awk</td><td>✓</td><td>✓</td><td></td><td><code>awk-language-server</code></td></tr>
 <tr><td>bash</td><td>✓</td><td>✓</td><td>✓</td><td><code>bash-language-server</code></td></tr>
 <tr><td>bass</td><td>✓</td><td></td><td></td><td><code>bass</code></td></tr>
-<tr><td>beancount</td><td>✓</td><td></td><td></td><td></td></tr>
+<tr><td>beancount</td><td>✓</td><td></td><td></td><td><code>beancount-language-server</code></td></tr>
 <tr><td>bibtex</td><td>✓</td><td></td><td></td><td><code>texlab</code></td></tr>
 <tr><td>bicep</td><td>✓</td><td></td><td></td><td><code>bicep-langserver</code></td></tr>
 <tr><td>bitbake</td><td>✓</td><td></td><td></td><td><code>bitbake-language-server</code></td></tr>
@@ -1572,7 +1574,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>erlang</td><td>✓</td><td>✓</td><td></td><td><code>erlang_ls</code>, <code>elp</code></td></tr>
 <tr><td>esdl</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>fidl</td><td>✓</td><td></td><td></td><td></td></tr>
-<tr><td>fish</td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
+<tr><td>fish</td><td>✓</td><td>✓</td><td>✓</td><td><code>fish-lsp</code></td></tr>
 <tr><td>forth</td><td>✓</td><td></td><td></td><td><code>forth-lsp</code></td></tr>
 <tr><td>fortran</td><td>✓</td><td></td><td>✓</td><td><code>fortls</code></td></tr>
 <tr><td>fsharp</td><td>✓</td><td></td><td></td><td><code>fsautocomplete</code></td></tr>
@@ -1701,7 +1703,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>robot</td><td>✓</td><td></td><td></td><td><code>robotframework_ls</code></td></tr>
 <tr><td>ron</td><td>✓</td><td></td><td>✓</td><td></td></tr>
 <tr><td>rst</td><td>✓</td><td></td><td></td><td></td></tr>
-<tr><td>ruby</td><td>✓</td><td>✓</td><td>✓</td><td><code>solargraph</code></td></tr>
+<tr><td>ruby</td><td>✓</td><td>✓</td><td>✓</td><td><code>ruby-lsp</code>, <code>solargraph</code></td></tr>
 <tr><td>rust</td><td>✓</td><td>✓</td><td>✓</td><td><code>rust-analyzer</code></td></tr>
 <tr><td>sage</td><td>✓</td><td>✓</td><td></td><td></td></tr>
 <tr><td>scala</td><td>✓</td><td>✓</td><td>✓</td><td><code>metals</code></td></tr>
@@ -1752,7 +1754,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>vhs</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>vue</td><td>✓</td><td></td><td></td><td><code>vue-language-server</code></td></tr>
 <tr><td>wast</td><td>✓</td><td></td><td></td><td></td></tr>
-<tr><td>wat</td><td>✓</td><td></td><td></td><td></td></tr>
+<tr><td>wat</td><td>✓</td><td></td><td></td><td><code>wat_server</code></td></tr>
 <tr><td>webc</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>wgsl</td><td>✓</td><td></td><td></td><td><code>wgsl_analyzer</code></td></tr>
 <tr><td>wit</td><td>✓</td><td></td><td>✓</td><td></td></tr>
@@ -2757,8 +2759,9 @@ language-servers = [ "mylang-lsp" ]
 <tr><td><code>language-servers</code></td><td>The Language Servers used for this language. See below for more information in the section <a href="languages.html#configuring-language-servers-for-a-language">Configuring Language Servers for a language</a></td></tr>
 <tr><td><code>grammar</code></td><td>The tree-sitter grammar to use (defaults to the value of <code>name</code>)</td></tr>
 <tr><td><code>formatter</code></td><td>The formatter for the language, it will take precedence over the lsp when defined. The formatter must be able to take the original file as input from stdin and write the formatted file to stdout</td></tr>
-<tr><td><code>soft-wrap</code></td><td><a href="./configuration.html#editorsoft-wrap-section">editor.softwrap</a></td></tr>
+<tr><td><code>soft-wrap</code></td><td><a href="./editor.html#editorsoft-wrap-section">editor.softwrap</a></td></tr>
 <tr><td><code>text-width</code></td><td>Maximum line length. Used for the <code>:reflow</code> command and soft-wrapping if <code>soft-wrap.wrap-at-text-width</code> is set, defaults to <code>editor.text-width</code></td></tr>
+<tr><td><code>rulers</code></td><td>Overrides the <code>editor.rulers</code> config key for the language.</td></tr>
 <tr><td><code>path-completion</code></td><td>Overrides the <code>editor.path-completion</code> config key for the language.</td></tr>
 <tr><td><code>workspace-lsp-roots</code></td><td>Directories relative to the workspace root that are treated as LSP roots. Should only be set in <code>.helix/config.toml</code>. Overwrites the setting of the same name in <code>config.toml</code> if set.</td></tr>
 <tr><td><code>persistent-diagnostic-sources</code></td><td>An array of LSP diagnostic sources assumed unchanged when the language server resends the same set of diagnostics. Helix can track the position for these diagnostics internally instead. Useful for diagnostics that are recomputed on save.</td></tr>
