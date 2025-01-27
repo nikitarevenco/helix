@@ -37,7 +37,7 @@ impl Hover {
         }
     }
 
-    fn content(&self) -> &(Option<Markdown>, Markdown) {
+    fn markdown_content(&self) -> &(Option<Markdown>, Markdown) {
         self.content.get_or_init(|| {
             let (server_name, hover) = &self.hovers[self.active_index];
             // Only render the header when there is more than one hover response.
@@ -60,6 +60,28 @@ impl Hover {
         })
     }
 
+    pub fn string_content(&self) -> String {
+        self.hovers
+            .iter()
+            .map(|(server_name, hover)| {
+                let header = (self.hovers.len() > 1)
+                    .then(|| {
+                        format!(
+                            "**[{}/{}] {}**\n",
+                            self.active_index + 1,
+                            self.hovers.len(),
+                            server_name
+                        )
+                    })
+                    .unwrap_or_default();
+                let body = hover_contents_to_string(&hover.contents);
+
+                format!("{header}{body}")
+            })
+            .collect::<Vec<String>>()
+            .join("\n\n---\n\n")
+    }
+
     fn set_index(&mut self, index: usize) {
         assert!((0..self.hovers.len()).contains(&index));
         self.active_index = index;
@@ -79,7 +101,7 @@ impl Component for Hover {
         let margin = Margin::all(1);
         let area = area.inner(margin);
 
-        let (header, contents) = self.content();
+        let (header, contents) = self.markdown_content();
 
         // show header and border only when more than one results
         if let Some(header) = header {
@@ -116,7 +138,7 @@ impl Component for Hover {
     fn required_size(&mut self, viewport: (u16, u16)) -> Option<(u16, u16)> {
         let max_text_width = viewport.0.saturating_sub(PADDING_HORIZONTAL).clamp(10, 120);
 
-        let (header, contents) = self.content();
+        let (header, contents) = self.markdown_content();
 
         let header_width = header
             .as_ref()
