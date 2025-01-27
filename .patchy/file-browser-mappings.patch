@@ -1,0 +1,25 @@
+From 488c6f00cd7a37ac0d5911ec5e559134fecc2463 Mon Sep 17 00:00:00 2001
+From: Nikita Revenco <154856872+NikitaRevenco@users.noreply.github.com>
+Date: Mon, 6 Jan 2025 17:13:47 +0000
+Subject: [PATCH] feat: add file browser
+
+---
+ helix-term/src/keymap/default.rs | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/helix-term/src/keymap/default.rs b/helix-term/src/keymap/default.rs
+index c6cefd92..620cb187 100644
+--- a/helix-term/src/keymap/default.rs
++++ b/helix-term/src/keymap/default.rs
+@@ -222,6 +222,8 @@ pub fn default() -> HashMap<Mode, KeyTrie> {
+         "space" => { "Space"
+             "f" => file_picker,
+             "F" => file_picker_in_current_directory,
++            "E" => file_browser,
++            "e" => file_browser_in_current_buffer_directory,
+             "b" => buffer_picker,
+             "j" => jumplist_picker,
+             "s" => symbol_picker,
+-- 
+2.47.0
+
