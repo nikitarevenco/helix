@@ -63,12 +63,13 @@ impl Hover {
     pub fn string_content(&self) -> String {
         self.hovers
             .iter()
-            .map(|(server_name, hover)| {
+            .enumerate()
+            .map(|(server_count, (server_name, hover))| {
                 let header = (self.hovers.len() > 1)
                     .then(|| {
                         format!(
                             "**[{}/{}] {}**\n",
-                            self.active_index + 1,
+                            server_count + 1,
                             self.hovers.len(),
                             server_name
                         )
