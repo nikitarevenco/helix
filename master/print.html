@@ -177,7 +177,7 @@ Note that:</p>
 <li>
 <p>To take full advantage of Helix, install the language servers for your
 preferred programming languages. See the
-<a href="https://github.com/helix-editor/helix/wiki/How-to-install-the-default-language-servers">wiki</a>
+<a href="https://github.com/helix-editor/helix/wiki/Language-Server-Configurations">wiki</a>
 for instructions.</p>
 </li>
 </ul>
@@ -370,7 +370,7 @@ your <code>~/.bashrc</code> or equivalent:</p>
 <p>Either set the <code>HELIX_RUNTIME</code> environment variable to point to the runtime files using the Windows setting (search for
 <code>Edit environment variables for your account</code>) or use the <code>setx</code> command in
 Cmd:</p>
-<pre><code class="language-sh">setx HELIX_RUNTIME "%userprofile%\source\repos\helix\runtime"
+<pre><code class="language-sh">setx HELIX_RUNTIME "%userprofile%\src\helix\runtime"
 </code></pre>
 <blockquote>
 <p>💡 <code>%userprofile%</code> resolves to your user directory like
@@ -1171,8 +1171,8 @@ See the documentation page on <a href="./pickers.html">pickers</a> for more info
 <tr><td><code>:reload-all</code>, <code>:rla</code></td><td>Discard changes and reload all documents from the source files.</td></tr>
 <tr><td><code>:update</code>, <code>:u</code></td><td>Write changes only if the file has been modified.</td></tr>
 <tr><td><code>:lsp-workspace-command</code></td><td>Open workspace command picker</td></tr>
-<tr><td><code>:lsp-restart</code></td><td>Restarts the language servers used by the current doc</td></tr>
-<tr><td><code>:lsp-stop</code></td><td>Stops the language servers that are used by the current doc</td></tr>
+<tr><td><code>:lsp-restart</code></td><td>Restarts the given language servers, or all language servers that are used by the current file if no arguments are supplied</td></tr>
+<tr><td><code>:lsp-stop</code></td><td>Stops the given language servers, or all language servers that are used by the current file if no arguments are supplied</td></tr>
 <tr><td><code>:tree-sitter-scopes</code></td><td>Display tree sitter scopes, primarily for theming and development.</td></tr>
 <tr><td><code>:tree-sitter-highlight-name</code></td><td>Display name of tree-sitter highlight scope under the cursor.</td></tr>
 <tr><td><code>:debug-start</code>, <code>:dbg</code></td><td>Start a debug session from a given template with given parameters.</td></tr>
@@ -1312,9 +1312,9 @@ See the documentation page on <a href="./pickers.html">pickers</a> for more info
 <tr><td><code>file_picker</code></td><td>Open file picker</td><td>normal: <code>&lt;space&gt;f</code>, select: <code>&lt;space&gt;f</code></td></tr>
 <tr><td><code>file_picker_in_current_buffer_directory</code></td><td>Open file picker at current buffer's directory</td><td></td></tr>
 <tr><td><code>file_picker_in_current_directory</code></td><td>Open file picker at current working directory</td><td>normal: <code>&lt;space&gt;F</code>, select: <code>&lt;space&gt;F</code></td></tr>
-<tr><td><code>file_browser</code></td><td>Open file browser in workspace root</td><td>normal: <code>&lt;space&gt;e</code>, select: <code>&lt;space&gt;e</code></td></tr>
-<tr><td><code>file_browser_in_current_buffer_directory</code></td><td>Open file browser at current buffer's directory</td><td>normal: <code>&lt;space&gt;E</code>, select: <code>&lt;space&gt;E</code></td></tr>
-<tr><td><code>file_browser_in_current_directory</code></td><td>Open file browser at current working directory</td><td></td></tr>
+<tr><td><code>file_explorer</code></td><td>Open file explorer in workspace root</td><td>normal: <code>&lt;space&gt;e</code>, select: <code>&lt;space&gt;e</code></td></tr>
+<tr><td><code>file_explorer_in_current_buffer_directory</code></td><td>Open file explorer at current buffer's directory</td><td>normal: <code>&lt;space&gt;E</code>, select: <code>&lt;space&gt;E</code></td></tr>
+<tr><td><code>file_explorer_in_current_directory</code></td><td>Open file explorer at current working directory</td><td></td></tr>
 <tr><td><code>code_action</code></td><td>Perform code action</td><td>normal: <code>&lt;space&gt;a</code>, select: <code>&lt;space&gt;a</code></td></tr>
 <tr><td><code>buffer_picker</code></td><td>Open buffer picker</td><td>normal: <code>&lt;space&gt;b</code>, select: <code>&lt;space&gt;b</code></td></tr>
 <tr><td><code>jumplist_picker</code></td><td>Open jumplist picker</td><td>normal: <code>&lt;space&gt;j</code>, select: <code>&lt;space&gt;j</code></td></tr>
@@ -1578,7 +1578,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>forth</td><td>✓</td><td></td><td></td><td><code>forth-lsp</code></td></tr>
 <tr><td>fortran</td><td>✓</td><td></td><td>✓</td><td><code>fortls</code></td></tr>
 <tr><td>fsharp</td><td>✓</td><td></td><td></td><td><code>fsautocomplete</code></td></tr>
-<tr><td>gas</td><td>✓</td><td>✓</td><td></td><td></td></tr>
+<tr><td>gas</td><td>✓</td><td>✓</td><td></td><td><code>asm-lsp</code></td></tr>
 <tr><td>gdscript</td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
 <tr><td>gemini</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>gherkin</td><td>✓</td><td></td><td></td><td></td></tr>
@@ -1658,7 +1658,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>mojo</td><td>✓</td><td>✓</td><td>✓</td><td><code>magic</code></td></tr>
 <tr><td>move</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>msbuild</td><td>✓</td><td></td><td>✓</td><td></td></tr>
-<tr><td>nasm</td><td>✓</td><td>✓</td><td></td><td></td></tr>
+<tr><td>nasm</td><td>✓</td><td>✓</td><td></td><td><code>asm-lsp</code></td></tr>
 <tr><td>nestedtext</td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
 <tr><td>nginx</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>nickel</td><td>✓</td><td></td><td>✓</td><td><code>nls</code></td></tr>
