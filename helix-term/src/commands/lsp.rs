@@ -209,12 +209,23 @@ fn diag_picker(
 ) -> DiagnosticsPicker {
     // TODO: drop current_path comparison and instead use workspace: bool flag?
 
+    let mut title: Vec<Span> = vec!["Diagnostics".into()];
+
+    let mut errors_count = 0;
+    let mut warnings_count = 0;
+
     // flatten the map to a vec of (url, diag) pairs
     let mut flat_diag = Vec::new();
     for (uri, diags) in diagnostics {
         flat_diag.reserve(diags.len());
 
         for (diag, ls) in diags {
+            match diag.severity {
+                Some(DiagnosticSeverity::ERROR) => errors_count += 1,
+                Some(DiagnosticSeverity::WARNING) => warnings_count += 1,
+                _ => (),
+            }
+
             if let Some(ls) = cx.editor.language_server_by_id(ls) {
                 flat_diag.push(PickerDiagnostic {
                     location: Location {
@@ -234,6 +245,23 @@ fn diag_picker(
         warning: cx.editor.theme.get("warning"),
         error: cx.editor.theme.get("error"),
     };
+
+    if warnings_count != 0 || errors_count != 0 {
+        title.push(": ".into());
+    }
+
+    if warnings_count != 0 {
+        title.push(Span::styled("● ", styles.warning));
+        title.push(warnings_count.to_string().into());
+    }
+
+    if errors_count != 0 {
+        if warnings_count != 0 {
+            title.push(" ".into())
+        }
+        title.push(Span::styled("● ", styles.error));
+        title.push(errors_count.to_string().into());
+    }
 
     let mut columns = vec![
         ui::PickerColumn::new(
@@ -293,6 +321,7 @@ fn diag_picker(
         },
     )
     .with_preview(move |_editor, diag| location_to_file_location(&diag.location))
+    .with_title(title.into())
     .truncate_start(false)
 }
 
@@ -414,6 +443,7 @@ pub fn symbol_picker(cx: &mut Context) {
                 },
             )
             .with_preview(move |_editor, item| location_to_file_location(&item.location))
+            .with_title("Document Symbols".into())
             .truncate_start(false);
 
             compositor.push(Box::new(overlaid(picker)))
@@ -526,6 +556,7 @@ pub fn workspace_symbol_picker(cx: &mut Context) {
     )
     .with_preview(|_editor, item| location_to_file_location(&item.location))
     .with_dynamic_query(get_symbols, None)
+    .with_title("Workspace Symbols".into())
     .truncate_start(false);
 
     cx.push_layer(Box::new(overlaid(picker)));
@@ -854,6 +885,7 @@ impl Display for ApplyEditErrorKind {
 
 /// Precondition: `locations` should be non-empty.
 fn goto_impl(
+    title: &'static str,
     editor: &mut Editor,
     compositor: &mut Compositor,
     locations: Vec<Location>,
@@ -883,7 +915,8 @@ fn goto_impl(
             let picker = Picker::new(columns, 0, locations, cwdir, move |cx, location, action| {
                 jump_to_location(cx.editor, location, offset_encoding, action)
             })
-            .with_preview(move |_editor, location| location_to_file_location(location));
+            .with_preview(move |_editor, location| location_to_file_location(location))
+            .with_title(title.into());
             compositor.push(Box::new(overlaid(picker)));
         }
     }
@@ -928,7 +961,13 @@ where
             if items.is_empty() {
                 editor.set_error("No definition found.");
             } else {
-                goto_impl(editor, compositor, items, offset_encoding);
+                goto_impl(
+                    "Goto Implementation",
+                    editor,
+                    compositor,
+                    items,
+                    offset_encoding,
+                );
             }
         },
     );
@@ -996,7 +1035,7 @@ pub fn goto_reference(cx: &mut Context) {
             if items.is_empty() {
                 editor.set_error("No references found.");
             } else {
-                goto_impl(editor, compositor, items, offset_encoding);
+                goto_impl("Goto Reference", editor, compositor, items, offset_encoding);
             }
         },
     );
